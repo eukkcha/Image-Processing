@@ -38,29 +38,31 @@ int main(int argc, char* argv[])
 			y1[j * width + i] = inputImg1[j * stride + 3 * i + 0]; //원본 이미지
 		}
 
-	int histogram[255] = { 0 };
+	//픽셀값0~256 분포도 저장
+	int histogram[256] = { 0 };
 	for (int j = 0; j < height; j++)
-		for (int i = 0; i < width; i++) 
-			for (int k = 0; k < 255; k++)
-				if (y1[j * width + i] == k)
-					histogram[k]++;
+		for (int i = 0; i < width; i++)
+			histogram[y1[j * width + i]]++;
 
-	//for (int i = 0; i < 255; i++)
-		//histogram[i] /= 10;
+	//분포값 15로 나누기
+	for (int k = 0; k < 255; k++)
+		histogram[k] /= 15;
 
+	//결과물 저장할 함수 result 선언
 	unsigned char* result = NULL;
 	result = (unsigned char*)calloc(size, sizeof(unsigned char));
-	
+
+	//흰색바탕 넣기
 	for (int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++)
 			result[j * width + i] = 255;
 
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < histogram[i]; j++) {
+	//분포값만큼 쌓아올리기
+	for (int i = 0; i < 256; i+=1)
+		for (int j = 0; j < histogram[i]; j++)
+		{
 			result[j * width + i] = 0;
-			if (j == height) break;
 		}
-	
 
 	//outputImg에 result 입력 (패딩 부분 제외)
 	for (int j = 0; j < height; j++)
