@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	int stride = (((bitCnt / 8) * width) + 3 / 4 * 4);
 
 	//영상1 인/아웃풋이미지 선언
-	unsigned char* inputImg1 = NULL, *outputImg1 = NULL;
+	unsigned char* inputImg1 = NULL, * outputImg1 = NULL;
 	inputImg1 = (unsigned char*)calloc(size, sizeof(unsigned char));
 	outputImg1 = (unsigned char*)calloc(size, sizeof(unsigned char));
 	fread(inputImg1, sizeof(unsigned char), size, inputFile1);
@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
 			histogram[y1[j * width + i]]++;
 
 	//분포값 15로 나누기
-	for (int k = 0; k < 255; k++)
-		histogram[k] /= 15;
+	for (int k = 0; k < 256; k++)
+		histogram[k] /= 10;
 
 	//결과물 저장할 함수 result 선언
 	unsigned char* result = NULL;
@@ -58,11 +58,16 @@ int main(int argc, char* argv[])
 			result[j * width + i] = 255;
 
 	//분포값만큼 쌓아올리기
-	for (int i = 0; i < 256; i+=1)
-		for (int j = 0; j < histogram[i]; j++)
+	int k = 0;
+	for (int i = 0; i < width; i+=2)
+	{
+		for (int j = 0; j < histogram[k]; j++)
 		{
 			result[j * width + i] = 0;
+			result[j * width + i + 1] = 0;
 		}
+		k++;
+	}
 
 	//outputImg에 result 입력 (패딩 부분 제외)
 	for (int j = 0; j < height; j++)
