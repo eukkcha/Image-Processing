@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 		k++;
 	}
 
-	//outputImg에 result 입력 (패딩 부분 제외)
+	//outputImg에 result 입력
 	for (int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++) {
 			outputImg1[j * stride + 3 * i + 0] = result[j * width + i];
