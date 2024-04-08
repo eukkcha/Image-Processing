@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width; i++)
 			histogram[y1[j * width + i]]++;
 
-	//분포값 15로 나누기
+	//분포값 10으로 나누기
 	for (int k = 0; k < 256; k++)
 		histogram[k] /= 10;
 
