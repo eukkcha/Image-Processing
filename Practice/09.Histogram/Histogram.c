@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
 	//분포값 10으로 나누기
 	for (int k = 0; k < 256; k++)
-		histogram[k] /= 10;
+		histogram[k] /= 15;
 
 	//결과물 저장할 함수 result 선언
 	unsigned char* result = NULL;
