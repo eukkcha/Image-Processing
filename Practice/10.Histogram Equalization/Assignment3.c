@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("DarkY.bmp", "rb");
+	inputFile1 = fopen("MyImageY.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width; i++)
 			distr1[dark[j * width + i]]++;
 
-	//분포값 20으로 나누기
+	//분포값 30으로 나누기
 	for (int i = 0; i < 256; i++)
-		distr1[i] /= 20;
+		distr1[i] /= 30;
 
 	//흰색바탕
 	for (int j = 0; j < height; j++)
@@ -119,9 +119,9 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width; i++)
 			HEdistr[HE[j * width + i]]++;
 
-	//분포값 20으로 나누기
+	//분포값 30으로 나누기
 	for (int i = 0; i < 256; i++)
-		HEdistr[i] /= 20;
+		HEdistr[i] /= 30;
 
 	//흰색바탕
 	for (int j = 0; j < height; j++)
@@ -150,17 +150,17 @@ int main(int argc, char* argv[])
 
 
 	//outputImg 파일 추출
-	FILE* outputFile1 = fopen("histogram.bmp", "wb");
+	FILE* outputFile1 = fopen("MyImageY_Histo.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
 	fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
 
-	FILE* outputFile2 = fopen("HE.bmp", "wb");
+	FILE* outputFile2 = fopen("MyImageY_HE.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile2);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile2);
 	fwrite(outputImg2, sizeof(unsigned char), size, outputFile2);
 
-	FILE* outputFile3 = fopen("HE_histogram.bmp", "wb");
+	FILE* outputFile3 = fopen("MyImageY_HE_Histo.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile3);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile3);
 	fwrite(outputImg3, sizeof(unsigned char), size, outputFile3);
