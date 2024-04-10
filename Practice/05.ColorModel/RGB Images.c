@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
-    inputFile1 = fopen("original.bmp", "rb");
+    inputFile1 = fopen("AICenter.bmp", "rb");
     fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
     fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
     }
 
     //outputImg 파일 추출
-    FILE* outputFile1 = fopen("output.bmp", "wb");
+    FILE* outputFile1 = fopen("AICenter_RGB.bmp", "wb");
     fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
     fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
     fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
