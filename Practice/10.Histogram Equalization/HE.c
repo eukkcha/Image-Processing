@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		}
 
 	//outputImg 파일 추출
-	FILE* outputFile1 = fopen("output.bmp", "wb");
+	FILE* outputFile1 = fopen("AICenterY_Dark_HE.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
 	fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
