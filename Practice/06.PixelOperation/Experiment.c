@@ -79,12 +79,12 @@ int main(int argc, char* argv[])
         }
 
     //영상 파일 추출
-    FILE* outputFile1 = fopen("Output1.bmp", "wb");
+    FILE* outputFile1 = fopen("Masking1.bmp", "wb");
     fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
     fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
     fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
 
-    FILE* outputFile2 = fopen("Output2.bmp", "wb");
+    FILE* outputFile2 = fopen("Masking2.bmp", "wb");
     fwrite(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, outputFile2);
     fwrite(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, outputFile2);
     fwrite(outputImg2, sizeof(unsigned char), size, outputFile2);
