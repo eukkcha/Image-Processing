@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
-    inputFile1 = fopen("originalY.bmp", "rb");
+    inputFile1 = fopen("AICenterY.bmp", "rb");
     fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
     fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bmpFile2;
     BITMAPINFOHEADER bmpInfo2;
     FILE* inputFile2 = NULL;
-    inputFile2 = fopen("testY.bmp", "rb");
+    inputFile2 = fopen("AICenterY_Noise.bmp", "rb");
     fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
     fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
