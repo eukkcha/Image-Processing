@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 	for (int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++)
 			y1[j * width + i] = inputImg1[j * stride + 3 * i + 0];
-	
+
 	int ratio = 2;
 	int width2 = bmpInfo1.biWidth >> ratio;
 	int height2 = bmpInfo1.biHeight >> ratio;
