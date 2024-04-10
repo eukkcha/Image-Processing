@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("originalY.bmp", "rb");
+	inputFile1 = fopen("AICenterY.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 
 	//분포값만큼 쌓아올리기
 	int k = 0;
-	for (int i = 0; i < width; i+=2)
+	for (int i = 0; i < width; i += 2)
 	{
 		for (int j = 0; j < histogram[k]; j++)
 		{
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 		}
 
 	//outputImg 파일 추출
-	FILE* outputFile1 = fopen("output.bmp", "wb");
+	FILE* outputFile1 = fopen("AICenterY_Histo.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
 	fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
