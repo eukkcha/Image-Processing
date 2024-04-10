@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
-    inputFile1 = fopen("originalY.bmp", "rb");
+    inputFile1 = fopen("AICenterY.bmp", "rb");
     fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
     fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bmpFile2;
     BITMAPINFOHEADER bmpInfo2;
     FILE* inputFile2 = NULL;
-    inputFile2 = fopen("testY.bmp", "rb");
+    inputFile2 = fopen("AICenterY_CombinedNoise.bmp", "rb");
     fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
     fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     int p = (3 - 1) / 2; //Same Padding의 폭 = ((Filter의 폭) - 1) / 2
     int pwidth = width + 2 * p; //Same Padding을 적용한 데이터의 크기 : (height + 2p, width + 2p)
     int pheight = height + 2 * p;
-    int psize = pwidth * pheight * 3; 
+    int psize = pwidth * pheight * 3;
 
     //결과물을 저장할 함수 result 선언
     unsigned char* result = NULL;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
         }
 
     //outputImg 파일 추출
-    FILE* outputFile1 = fopen("output.bmp", "wb");
+    FILE* outputFile1 = fopen("Filter.bmp", "wb");
     fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
     fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
     fwrite(outputImg1, sizeof(unsigned char), size, outputFile1);
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
     free(result);
 }
 
-//디버깅 (Padding이 잘 되었는지 확인)
+////디버깅 (padding이 잘 되었는지 확인)
 //for (int j = 0; j < 5; j++) //좌상단
 //{
 //    for (int i = 0; i < 5; i++)
