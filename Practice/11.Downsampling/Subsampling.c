@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 			outputImg1[j * stride2 + 3 * i + 2] = y2[j * width2 + i];
 		}
 
-	FILE* outputFile1 = fopen("ratio.bmp", "wb");
+	FILE* outputFile1 = fopen("Subsampling.bmp", "wb");
 	bmpInfo1.biWidth = width2;
 	bmpInfo1.biHeight = height2;
 	bmpInfo1.biSizeImage = size2;
