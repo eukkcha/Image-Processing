@@ -225,10 +225,10 @@ int main(int argc, char* argv[])
 		}
 	for (int j = 0; j < p; j++)
 		for (int i = 0; i < p; i++) {
-			result[j * pwidth1 + i] = y2[0]; // 좌상단
-			result[j * pwidth1 + pwidth1 - 1 - i] = y2[width1 - 1]; // 우상단
-			result[(pheight1 - 1 - j) * pwidth1 + i] = y2[(height1 - 1) * width1]; // 좌하단
-			result[(pheight1 - 1 - j) * pwidth1 + pwidth1 - 1 - i] = y2[(height1 - 1) * width1 + width1 - 1]; // 우하단
+			result1[j * pwidth1 + i] = y2[0]; // 좌상단
+			result1[j * pwidth1 + pwidth1 - 1 - i] = y2[width1 - 1]; // 우상단
+			result1[(pheight1 - 1 - j) * pwidth1 + i] = y2[(height1 - 1) * width1]; // 좌하단
+			result1[(pheight1 - 1 - j) * pwidth1 + pwidth1 - 1 - i] = y2[(height1 - 1) * width1 + width1 - 1]; // 우하단
 		}
 
 	// Convolution
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
 	double mse2 = 0, psnr2;
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++)
-			mse2 += (double)((y1[j * width1 + i] - result[(p + j) * pwidth1 + (p + i)]) * (y1[j * width1 + i] - result1[(p + j) * pwidth1 + (p + i)]));
+			mse2 += (double)((y1[j * width1 + i] - result1[(p + j) * pwidth1 + (p + i)]) * (y1[j * width1 + i] - result1[(p + j) * pwidth1 + (p + i)]));
 	mse2 /= (width1 * height1);
 	psnr2 = mse2 != 0.0 ? 10.0 * log10(255 * 255 / mse2) : 99.99;
 	printf("[내 필터 PSNR]\nMSE = %.2lf(%.2lfdB)\n\n", mse2, psnr2);
