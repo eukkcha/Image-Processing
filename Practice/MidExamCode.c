@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
             }
             if (j > 400 && i > 400)
             {
-
                 outputImg1[j * stride1 + 3 * i + 0] = 255;
                 outputImg1[j * stride1 + 3 * i + 1] = 255;
                 outputImg1[j * stride1 + 3 * i + 2] = 255;
@@ -415,8 +414,16 @@ int main(int argc, char* argv[])
     // 메모리 할당 해제
     free(inputImg1);
     fclose(inputFile1);
+    free(inputImg2);
+    fclose(inputFile2);
 
-    free(result);
+    free(y1);
+    free(y2);
+    free(result1);
+    free(result2);
 
+    free(outputImg1);
     fclose(outputFile1);
+    free(outputImg2);
+    fclose(outputFile2);
 }
