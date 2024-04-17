@@ -427,7 +427,6 @@ int main(int argc, char* argv[])
 	// 영상1 불러오기 (AICenterY.bmp)
 	// 영상1 크기 정보
 	// 인풋이미지1 선언
-	// 아웃풋이미지1 선언
 
 	// 함수 y1 : AICenterY
 
@@ -444,8 +443,28 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width2; i++)
 			result1[j * width2 + i] = y1[(j << ratio) * width1 + (i << ratio)];
 
-	// 아웃풋이미지1 result1 할당
+	// 아웃풋이미지1 선언 (size2)
+	unsigned char* outputImg1 = NULL;
+	outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
+
+	// 아웃풋이미지1 y1 할당
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++) {
+			outputImg1[j * stride2 + 3 * i + 0] = result1[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 1] = result1[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 2] = result1[j * width2 + i];
+		}
+
 	// 아웃풋이미지 파일1
+	FILE* outputFile1 = fopen("Subsampling.bmp", "wb");
+	bmpInfo1.biWidth = width2;
+	bmpInfo1.biHeight = height2;
+	bmpInfo1.biSizeImage = size2;
+	bmpFile1.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPFILEHEADER) + size2;
+	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
+	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
+	fwrite(outputImg1, sizeof(unsigned char), size2, outputFile1);
+
 	// 메모리 할당 해제
 
 
@@ -478,8 +497,24 @@ int main(int argc, char* argv[])
 			result1[(2 * j + 1) * width2 + (2 * i + 1)] = y1[j * width1 + i];
 		}
 
-	// 아웃풋이미지1 result1 할당
+	// 아웃풋이미지1 y1 할당
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++) {
+			outputImg1[j * stride2 + 3 * i + 0] = result1[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 1] = result1[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 2] = result1[j * width2 + i];
+		}
+
 	// 아웃풋이미지 파일1
+	FILE* outputFile1 = fopen("Upsampling.bmp", "wb");
+	bmpInfo1.biWidth = width2;
+	bmpInfo1.biHeight = height2;
+	bmpInfo1.biSizeImage = size2;
+	bmpFile1.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPFILEHEADER) + size2;
+	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
+	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
+	fwrite(outputImg1, sizeof(unsigned char), size2, outputFile1);
+
 	// 메모리 할당 해제
 }
 
