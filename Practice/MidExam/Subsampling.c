@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	unsigned char* outputImg1 = NULL;
 	outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
-	// 아웃풋이미지1 y1 할당
+	// 아웃풋이미지1 result1 할당
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++) {
 			outputImg1[j * stride2 + 3 * i + 0] = result1[j * width2 + i];
