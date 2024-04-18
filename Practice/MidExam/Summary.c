@@ -549,3 +549,13 @@ int main(int argc, char* argv[])
 //printf("\n");
 //
 //printf("----------\n\n");
+
+//// Noise Generation
+// int Err = 55;
+// Y += rand() % Err - (Err >> 1);
+
+//// Salt-and-Pepper Noise
+// int prob = 10;
+// if ((rand() % prob) == 0) Y = 225;
+// else if ((rand() % prob) == 1) Y == 0;
+// else Y = Y;
