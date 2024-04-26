@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++)
 			y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
-	
+
 	// Upsampling 크기
 	int ratio = 1; // 크기를 키울 배율
 	int width2 = bmpInfo1.biWidth << ratio;
@@ -43,7 +43,8 @@ int main(int argc, char* argv[])
 
 	// 함수 result1 : Upsampling (크기 size2)
 	unsigned char* result1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
-    // Nearest Neighbor Interpolation
+
+	// Nearest Neighbor Interpolation
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++)
 		{
@@ -52,6 +53,10 @@ int main(int argc, char* argv[])
 			result1[(2 * j + 1) * width2 + (2 * i)] = y1[j * width1 + i];
 			result1[(2 * j + 1) * width2 + (2 * i + 1)] = y1[j * width1 + i];
 		}
+
+	// 아웃풋이미지1 선언
+	unsigned char* outputImg1 = NULL;
+	outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
 	// 아웃풋이미지1 result1 할당
 	for (int j = 0; j < height2; j++)
@@ -76,7 +81,7 @@ int main(int argc, char* argv[])
 	fclose(inputFile1);
 
 	free(y1);
-    free(result1);
+	free(result1);
 
 	free(outputImg1);
 	fclose(outputFile1);
