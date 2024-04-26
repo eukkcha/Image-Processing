@@ -15,13 +15,13 @@ int main(int argc, char* argv[])
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
-    // 영상2 불러오기 (AICenterY_CombinedNoise.bmp)
+	// 영상2 불러오기 (AICenterY_CombinedNoise.bmp)
 	BITMAPFILEHEADER bmpFile2;
-    BITMAPINFOHEADER bmpInfo2;
-    FILE* inputFile2 = NULL;
-    inputFile2 = fopen("AICenterY_CombinedNoise.bmp", "rb");
-    fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
-    fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
+	BITMAPINFOHEADER bmpInfo2;
+	FILE* inputFile2 = NULL;
+	inputFile2 = fopen("AICenterY_CombinedNoise.bmp", "rb");
+	fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
+	fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
 	// 영상1 크기 정보
 	int width1 = bmpInfo1.biWidth;
@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 	unsigned char* inputImg1 = NULL;
 	inputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 	fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
-    
-    // 인풋이미지2 선언
+
+	// 인풋이미지2 선언
 	unsigned char* inputImg2 = NULL;
 	inputImg2 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 	fread(inputImg2, sizeof(unsigned char), size1, inputFile2);
@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
 	int psize1 = pwidth1 * pheight1 * 3;
 
 	// 함수 result1 : 필터 결과값 (크기 psize)
-    unsigned char* result1 = NULL;
-	result1 = (unsigned char*)calloc(psize, sizeof(unsigned char));
+	unsigned char* result1 = NULL;
+	result1 = (unsigned char*)calloc(psize1, sizeof(unsigned char));
 
 	// 1. Zero Padding
 	for (int j = 0; j < pheight1; j++)
@@ -204,12 +204,12 @@ int main(int argc, char* argv[])
 	// 메모리 할당 해제
 	free(inputImg1);
 	fclose(inputFile1);
-    free(inputImg2);
+	free(inputImg2);
 	fclose(inputFile2);
 
 	free(y1);
-    free(y2);
-    free(result1);
+	free(y2);
+	free(result1);
 
 	free(outputImg1);
 	fclose(outputFile1);
