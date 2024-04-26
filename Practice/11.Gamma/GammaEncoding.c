@@ -38,17 +38,17 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width1; i++)
 			y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
-	// 함수 y2 : Gamma encoding
+	// 함수 y2 : Gamma encoding result
 	unsigned char* y2 = NULL;
 	y2 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 
-	// 알고리즘
+	// Gamma encoding
 	float gamma = 0.4;
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++)
 			y2[j * width1 + i] = (unsigned char)(255 * pow(y1[j * width1 + i] / 255.0, 1 / gamma));
 
-	// 아웃풋이미지1 result1 할당
+	// 아웃풋이미지1 y2 할당
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++) {
 			outputImg1[j * stride1 + 3 * i + 0] = y2[j * width1 + i];
