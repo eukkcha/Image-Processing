@@ -39,36 +39,36 @@ int main(int argc, char* argv[])
 	Gx = (unsigned char*)calloc(size1, sizeof(unsigned char));
 
 	for (int j = 0; j < height1; j++)
+		for (int i = 0; i < width1; i++)
+			Gx[j * width1 + i] = 0;
+	for (int j = 0; j < height1; j++)
 	{
-		for (int i = 0; i < width1 - 1; i++)
+		for (int i = 1; i < width1 - 1; i++)
 		{
-			double diff = y1[j * width1 + i] - y1[j * width1 + i + 1];
-			if (diff > 30 || diff < -30)
-				Gx[j * width1 + i] = 255;
-			else
-				Gx[j * width1 + i] = 0;
+			double dev = (y1[j * width1 + i + 1] - y1[j * width1 + i - 1]) / 2;
+			dev = sqrt(dev * dev);
+			Gx[j * width1 + i] = dev;
 		}
 	}
-	for (int j = 0; j < height1; j++)
-		Gx[j * width1 + width1 - 1] = 0;
 
 	// 함수 Gy : Gy 결과물
 	unsigned char* Gy = NULL;
 	Gy = (unsigned char*)calloc(size1, sizeof(unsigned char));
 
-	for (int j = 0; j < height1 - 1; j++)
+	for (int j = 0; j < height1; j++)
+		for (int i = 0; i < width1; i++)
+			Gy[j * width1 + i] = 0;
+	for (int j = 1; j < height1 - 1; j++)
 	{
 		for (int i = 0; i < width1; i++)
 		{
-			double diff = y1[j * width1 + i] - y1[(j + 1) * width1 + i];
-			if (diff > 30 || diff < -30)
-				Gy[j * width1 + i] = 255;
-			else
-				Gy[j * width1 + i] = 0;
+			double dev = (y1[(j + 1) * width1 + i] - y1[(j - 1) * width1 + i]) / 2;
+			dev = sqrt(dev * dev);
+
+
+			Gy[j * width1 + i] = dev;
 		}
 	}
-	for (int i = 0; i < width1; i++)
-		Gx[(width1 - 1) * width1 + i] = 0;
 
 	// 함수 result1 : G 결과물
 	unsigned char* result1 = NULL;
@@ -83,22 +83,6 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//// 추가적으로 짜보는 코드
-	//for (int j = 0; j < height1; j++)
-	//{
-	//	for (int i = 1; i < width1 - 1; i++)
-	//	{
-	//		// 수직, 수평 필터를 통한 각 픽셀
-
-
-	//		double G = sqrt(Gx[j * width1 + i] * Gx[j * width1 + i] + Gy[j * width1 + i] * Gy[j * width1 + i]);
-	//		
-	//		
-
-	//		result1[j * width1 + i] = (unsigned char)(G > 255 ? 255 : (G < 0 ? 0 : G));
-	//	}
-	//}
-
 	// 아웃풋이미지1 선언
 	unsigned char* outputImg1 = NULL;
 	outputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
@@ -112,7 +96,7 @@ int main(int argc, char* argv[])
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("output.bmp", "wb");
+	FILE* outputFile1 = fopen("edge.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
 	fwrite(outputImg1, sizeof(unsigned char), size1, outputFile1);
@@ -123,8 +107,8 @@ int main(int argc, char* argv[])
 
 	free(y1);
 	free(Gx);
-	free(Gy);
-	free(result1);
+	//free(Gy);
+	//free(result1);
 
 	free(outputImg1);
 	fclose(outputFile1);
