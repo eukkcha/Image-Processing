@@ -34,6 +34,26 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width1; i++)
 			y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
+	double devfilter[3] = { -1, 0, 1 };
+	double sobelfilterx[3][3] = { {-1, 0, 1},
+								  {-2, 0, 2},
+								  {-1, 0, 1} };
+	double sobelfiltery[3][3] = { {1, 2, 1},
+								  {0, 0, 0},
+								  {-1, -2, -1} };
+	double prewittfilterx[3][3] = { {-1, 0, 1}, 
+									{-1, 0, 1}, 
+									{-1, 0, 1} };
+	double prewittfiltery[3][3] = { {1, 1, 1}, 
+									{0, 0, 0}, 
+									{-1, -1, -1} };
+	double robertsfilterx[3][3] = { {-1, 0, 0}, 
+									{0, 1, 0}, 
+									{0, 0, 0} };
+	double robertsfiltery[3][3] = { {0, -1, 0},
+									{1, 0, 0}, 
+									{0, 0, 0} };
+
 	// 함수 Gx : Gx 결과물
 	unsigned char* Gx = NULL;
 	Gx = (unsigned char*)calloc(size1, sizeof(unsigned char));
@@ -41,15 +61,23 @@ int main(int argc, char* argv[])
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < width1; i++)
 			Gx[j * width1 + i] = 0;
-	for (int j = 0; j < height1; j++)
-	{
+	for (int j = 1; j < height1 - 1; j++)
 		for (int i = 1; i < width1 - 1; i++)
 		{
-			double dev = (y1[j * width1 + i + 1] - y1[j * width1 + i - 1]) / 2;
-			dev = sqrt(dev * dev);
-			Gx[j * width1 + i] = dev;
+			double F = 0;
+			for (int m = 0; m < 3; m++)
+				for (int n = 0; n < 3; n++)
+					F += y1[(j - 1 + m) * width1 + (i - 1 + n)] * robertsfilterx[m][n];
+			
+			F = sqrt(F * F);
+			
+			if (F < 0)
+				F = 0;
+			else if (F > 255)
+				F = 255;
+			
+			Gx[j * width1 + i] = F;
 		}
-	}
 
 	// 함수 Gy : Gy 결과물
 	unsigned char* Gy = NULL;
@@ -59,29 +87,41 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width1; i++)
 			Gy[j * width1 + i] = 0;
 	for (int j = 1; j < height1 - 1; j++)
-	{
-		for (int i = 0; i < width1; i++)
+		for (int i = 1; i < width1 - 1; i++)
 		{
-			double dev = (y1[(j + 1) * width1 + i] - y1[(j - 1) * width1 + i]) / 2;
-			dev = sqrt(dev * dev);
-
-
-			Gy[j * width1 + i] = dev;
+			double F = 0;
+			for (int m = 0; m < 3; m++)
+				for (int n = 0; n < 3; n++)
+					F += y1[(j - 1 + m) * width1 + (i - 1 + n)] * robertsfiltery[m][n];
+			
+			F = sqrt(F * F);
+			
+			if (F < 0)
+				F = 0;
+			else if (F > 255)
+				F = 255;
+			
+			Gy[j * width1 + i] = F;
 		}
-	}
 
 	// 함수 result1 : G 결과물
 	unsigned char* result1 = NULL;
 	result1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 
 	for (int j = 0; j < height1; j++)
-	{
 		for (int i = 0; i < width1; i++)
 		{
 			double G = sqrt(Gx[j * width1 + i] * Gx[j * width1 + i] + Gy[j * width1 + i] * Gy[j * width1 + i]);
+			
+			//// Thresholding
+			//if (G >= 200)
+			//	result1[j * width1 + i] = 255;
+			//else 
+			//	result1[j * width1 + i] = 0;
+
+			// Not Thresholding
 			result1[j * width1 + i] = (unsigned char)(G > 255 ? 255 : (G < 0 ? 0 : G));
 		}
-	}
 
 	// 아웃풋이미지1 선언
 	unsigned char* outputImg1 = NULL;
@@ -96,7 +136,7 @@ int main(int argc, char* argv[])
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("edge.bmp", "wb");
+	FILE* outputFile1 = fopen("RobertsEdge.bmp", "wb");
 	fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
 	fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
 	fwrite(outputImg1, sizeof(unsigned char), size1, outputFile1);
@@ -107,8 +147,8 @@ int main(int argc, char* argv[])
 
 	free(y1);
 	free(Gx);
-	//free(Gy);
-	//free(result1);
+	free(Gy);
+	free(result1);
 
 	free(outputImg1);
 	fclose(outputFile1);
