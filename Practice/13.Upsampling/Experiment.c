@@ -54,7 +54,8 @@ int main(int argc, char* argv[])
 
 	//// Nearest Neighbor Interpolation
 	//for (int j = 0; j < height2; j++)
-	//	for (int i = 0; i < width2; i++) {
+	//	for (int i = 0; i < width2; i++) 
+	//	{
 	//		int origY = j / (1 << ratio);
 	//		int origX = i / (1 << ratio);
 
@@ -62,35 +63,35 @@ int main(int argc, char* argv[])
 	//	}
 
 	const int filter[4] = { -1, 9, 9, -1 };
-	const int filterSum = 16;
+	const int filtersum = 16;
 
-	// N-tap Interpolation
+	// n-tap interpolation
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
 		{
-			float origY = j / (float)(1 << ratio);
-			float origX = i / (float)(1 << ratio);
+			float origy = j / (float)(1 << ratio);
+			float origx = i / (float)(1 << ratio);
 
-			int Value = 0;
+			int value = 0;
 
 			for (int k = 0; k < 4; k++)
 				for (int l = 0; l < 4; l++)
 				{
-					int idxY = origY - 1 + k;
-					if (idxY < 0) idxY = 0;
-					if (idxY >= height1) idxY = height1 - 1;
-					int idxX = origX - 1 + l;
-					if (idxX < 0) idxX = 0;
-					if (idxX >= width1) idxX = width1 - 1;
+					int idxy = origy - 1 + k;
+					if (idxy < 0) idxy = 0;
+					if (idxy >= height1) idxy = height1 - 1;
+					int idxx = origx - 1 + l;
+					if (idxx < 0) idxx = 0;
+					if (idxx >= width1) idxx = width1 - 1;
 
-					Value += y1[idxY * width1 + idxX] * filter[k] * filter[l];
+					value += y1[idxy * width1 + idxx] * filter[k] * filter[l];
 				}
 
-			Value /= (filterSum * filterSum);
-			if (Value < 0) Value = 0;
-			if (Value > 255) Value = 255;
+			value /= (filtersum * filtersum);
+			if (value < 0) value = 0;
+			if (value > 255) value = 255;
 
-			result1[j * width2 + i] = Value;
+			result1[j * width2 + i] = value;
 		}
 
 	// 인풋이미지2 선언
