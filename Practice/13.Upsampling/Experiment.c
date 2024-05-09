@@ -93,11 +93,10 @@ int main(int argc, char* argv[])
 			result1[j * width2 + i] = Value;
 		}
 
-	// 인풋이미지1 선언
+	// 인풋이미지2 선언
 	unsigned char* inputImg2 = NULL;
 	inputImg2 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 	fread(inputImg2, sizeof(unsigned char), size2, inputFile2);
-
 
 	// 함수 y2 : AICenterY
 	unsigned char* y2 = NULL;
@@ -106,6 +105,7 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width2; i++)
 			y2[j * width2 + i] = inputImg2[j * stride2 + 3 * i + 0];
 
+	// PSNR (원본 - Upsampling)
 	double mse = 0, psnr;
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
@@ -125,6 +125,8 @@ int main(int argc, char* argv[])
 			outputImg1[j * stride2 + 3 * i + 1] = result1[j * width2 + i];
 			outputImg1[j * stride2 + 3 * i + 2] = result1[j * width2 + i];
 		}
+	// N-Tap(4) : 22.87
+	// Nearest Neighbor : 22.54
 
 	// 아웃풋이미지 파일1
 	FILE* outputFile1 = fopen("Upsampling.bmp", "wb");
