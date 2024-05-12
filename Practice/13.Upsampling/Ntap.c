@@ -1,5 +1,5 @@
-#pragma warning(disable:4996);
 #define _CRT_SECURE_NO_WARINGS
+#pragma warning(disable:4996);
 #include <stdio.h>
 #include <windows.h>
 #include <math.h>
@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("AICenterY.bmp", "rb");
+	inputFile1 = fopen("Subsampling.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -44,44 +44,38 @@ int main(int argc, char* argv[])
 	// 함수 result1 : Upsampling (크기 size2)
 	unsigned char* result1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
-	// Nearest Neighbor Interpolation
+	// N-tap Filter
+	const int filter[4] = { -1, 9, 9, -1 };
+	const int filterSum = 16;
+
+	// Apply N-tap Interpolation
 	for (int j = 0; j < height2; j++)
-		for (int i = 0; i < width2; i++) {
-			int origY = j / (1 << ratio);
-			int origX = i / (1 << ratio);
+		for (int i = 0; i < width2; i++)
+		{
+			float origY = j / (float)(1 << ratio);
+			float origX = i / (float)(1 << ratio);
 
-			result1[j * width2 + i] = y1[origY * width1 + origX];
+			int Value = 0;
+
+			for (int k = 0; k < 4; k++)
+				for (int l = 0; l < 4; l++)
+				{
+					int idxY = origY - 1 + k;
+					if (idxY < 0) idxY = 0;
+					if (idxY >= height1) idxY = height1 - 1;
+					int idxX = origX - 1 + l;
+					if (idxX < 0) idxX = 0;
+					if (idxX >= width1) idxX = width1 - 1;
+
+					Value += y1[idxY * width1 + idxX] * filter[k] * filter[l];
+				}
+
+			Value /= (filterSum * filterSum);
+			if (Value < 0) Value = 0;
+			if (Value > 255) Value = 255;
+
+			result1[j * width2 + i] = Value;
 		}
-
-    
-    // Apply N-tap Interpolation
-    for (int j = 0; j < height2; j++)
-        for (int i = 0; i < width2; i++) 
-        {
-            float origY = j / (float)(1 << ratio);
-            float origX = i / (float)(1 << ratio);
-
-            int Value = 0;
-
-            for (int k = 0; k < 4; k++) 
-                for (int l = 0; l < 4; l++) 
-                {
-                    int idxY = origY - 1 + k;
-                    if (idxY < 0) idxY = 0;
-                    if (idxY >= height1) idxY = height1 - 1;
-                    int idxX = origX - 1 + l;
-                    if (idxX < 0) idxX = 0;
-                    if (idxX >= width1) idxX = width1 - 1;
-
-                    Value += y1[idxY * width1 + idxX] * filter[k] * filter[l];
-                }
-
-            Value /= (filterSum * filterSum);
-            if (Value < 0) Value = 0;
-            if (Value > 255) Value = 255;
-
-            result1[j * width2 + i] = Value;
-        }
 
 	// 아웃풋이미지1 선언
 	unsigned char* outputImg1 = NULL;
