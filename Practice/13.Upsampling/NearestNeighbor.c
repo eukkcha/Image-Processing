@@ -1,5 +1,5 @@
-#pragma warning(disable:4996);
 #define _CRT_SECURE_NO_WARINGS
+#pragma warning(disable:4996);
 #include <stdio.h>
 #include <windows.h>
 #include <math.h>
@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("AICenterY.bmp", "rb");
+	inputFile1 = fopen("Subsampling.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
