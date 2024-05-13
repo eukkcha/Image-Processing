@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
 	// Bilinear Interpolation
 	for (int j = 0; j < height2; j++)
-		for (int i = 0; i < width2; i++) 
+		for (int i = 0; i < width2; i++)
 		{
 			// 원본 이미지에 대응하는 좌표
 			float origY = j / (float)(1 << ratio);
@@ -84,11 +84,31 @@ int main(int argc, char* argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Denoising Code //
 
+	// Filter 3x3
+	double Gauss3F[3][3] = { {(double)1 / 16, (double)2 / 16, (double)1 / 16},
+							  {(double)2 / 16, (double)4 / 16, (double)2 / 16},
+							  {(double)1 / 16, (double)2 / 16, (double)1 / 16} };
+	double Mean3F[3][3] = { {(double)1 / 9, (double)1 / 9, (double)1 / 9},
+							{(double)1 / 9, (double)1 / 9, (double)1 / 9},
+							{(double)1 / 9, (double)1 / 9, (double)1 / 9} };
 
+	// 함수 result : 최종 결과치
+	unsigned char* result = NULL;
+	result = (unsigned char*)calloc(size2, sizeof(unsigned char));
+
+	// Convolution
+	for (int j = 1; j < height2 - 1; j++)
+		for (int i = 1; i < width2 - 1; i++)
+		{
+			int F = 0;
+			for (int m = 0; m < 3; m++) // 3x3 Filter (m,n) = (3,3)
+				for (int n = 0; n < 3; n++)
+					F += result1[(j - 1 + m) * width2 + (i - 1 + n)] * Mean3F[m][n]; // 3F
+			result[j * width2 + i] = F;
+		}
 
 	// Denoising Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// PSNR Code //
 
@@ -108,7 +128,7 @@ int main(int argc, char* argv[])
 	double mse = 0, psnr;
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
-			mse += (double)((result1[j * width2 + i] - y[j * width2 + i]) * (result1[j * width2 + i] - y[j * width2 + i]));
+			mse += (double)((result[j * width2 + i] - y[j * width2 + i]) * (result[j * width2 + i] - y[j * width2 + i]));
 	mse /= (width2 * height2);
 	psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
 	printf("MSE = %.2lf\nPSNR = %.2lfdB\n\n", mse, psnr);
@@ -127,9 +147,9 @@ int main(int argc, char* argv[])
 	// 아웃풋이미지1 result1 할당
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++) {
-			outputImg1[j * stride2 + 3 * i + 0] = result1[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 1] = result1[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 2] = result1[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 0] = result[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 1] = result[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 2] = result[j * width2 + i];
 		}
 
 	// 아웃풋이미지 파일1
@@ -151,6 +171,7 @@ int main(int argc, char* argv[])
 	free(y1);
 	free(y); // 원본
 	free(result1);
+	free(result);
 
 	free(outputImg1);
 	fclose(outputFile1);
