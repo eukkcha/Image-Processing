@@ -7,19 +7,19 @@
 
 int main(int argc, char* argv[])
 {
-	// 영상1 불러오기 (treeYNoised.bmp)
+	// 영상1 불러오기 (testYnoise.bmp)
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("testYnoised3.bmp", "rb");
+	inputFile1 = fopen("testYnoise5.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
-	// 영상2 불러오기 (treeYYY.bmp)
+	// 영상2 불러오기 (testY.bmp)
 	BITMAPFILEHEADER bmpFile2;
 	BITMAPINFOHEADER bmpInfo2;
 	FILE* inputFile2 = NULL;
-	inputFile2 = fopen("test3.bmp", "rb");
+	inputFile2 = fopen("testY5.bmp", "rb");
 	fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
 	fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	inputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 	fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
 
-	// 함수 y1 : testYSubNoised
+	// 함수 y1 : testYnoise
 	unsigned char* y1 = NULL;
 	y1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
 	for (int j = 0; j < height1; j++)
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 	// Upsample(y2) Code //
 
 	// Upsample 크기
-	int ratio = 2; // 크기를 키울 배율 (2의 ratio제곱)
+	int ratio = 2; // 크기 키울 배율 (2의 ratio제곱)
 	int width2 = bmpInfo1.biWidth << ratio;
 	int height2 = bmpInfo1.biHeight << ratio;
 	int stride2 = ((bitCnt1 / 8) * width2 + 3) / 4 * 4;
@@ -77,9 +77,9 @@ int main(int argc, char* argv[])
 
 			// 4개 픽셀의 가중평균
 			float value = (1 - dx) * (1 - dy) * y1[y01 * width1 + x01] +
-				dx * (1 - dy) * y1[y01 * width1 + x02] +
-				(1 - dx) * dy * y1[y02 * width1 + x01] +
-				dx * dy * y1[y02 * width1 + x02];
+						  dx * (1 - dy) * y1[y01 * width1 + x02] +
+						  (1 - dx) * dy * y1[y02 * width1 + x01] +
+						  dx * dy * y1[y02 * width1 + x02];
 
 			y2[j * width2 + i] = (unsigned char)value;
 		}
@@ -156,17 +156,11 @@ int main(int argc, char* argv[])
 			double G = sqrt(Gx[j * width2 + i] * Gx[j * width2 + i] + Gy[j * width2 + i] * Gy[j * width2 + i]);
 
 			// Thresholding
-			if (G >= 250) // 130
+			if (G >= 130) // 130
 				y3[j * width2 + i] = 255;
 			else
 				y3[j * width2 + i] = 0;
 		}
-	// 130    200    250
-	// 25.40  25.45  25.46
-	// 23.04  23.12  23.11
-	// 17.47  17.49  17.51
-	// 21.36  21.44  21.45
-	// 15.43  15.44  15.47
 
 	// ED(y3) Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,14 +173,12 @@ int main(int argc, char* argv[])
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
 			ymsk[j * width2 + i] = y2[j * width2 + i];
-
-	// 엣지 부분 mask
-	// y2에서 0인 부분은 1로 만들기
+	// y2에서 0인 값, 0 -> 1
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
 			if (y2[j * width2 + i] == 0)
 				ymsk[j * width2 + i]++;
-	// y3에서 255인 좌표는 y2에서 0으로 mask 하기
+	// y3에서 255(edge)인 값, 255 -> 0 (mask)
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
 			if (y3[j * width2 + i] == 255)
@@ -236,12 +228,8 @@ int main(int argc, char* argv[])
 	// Mask되었던 Edge 부분 Paste
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
-		{
 			if (y4[j * width2 + i] == 0)
-			{
 				y4[j * width2 + i] = y2[j * width2 + i];
-			}
-		}
 
 	// Denoise(y4) Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,7 +273,7 @@ int main(int argc, char* argv[])
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("result1.bmp", "wb");
+	FILE* outputFile1 = fopen("testYresult.bmp", "wb");
 	bmpInfo1.biWidth = width2;
 	bmpInfo1.biHeight = height2;
 	bmpInfo1.biSizeImage = size2;
@@ -305,6 +293,10 @@ int main(int argc, char* argv[])
 	free(y2); // Upsample
 	free(y3); // ED & Threshold
 	free(y4); // Denoise
+
+	free(ymsk);
+	free(Gx); 
+	free(Gy); 
 
 	free(outputImg1);
 	fclose(outputFile1);
