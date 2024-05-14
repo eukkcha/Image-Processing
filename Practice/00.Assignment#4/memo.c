@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("testYSubNoised4.bmp", "rb");
+	inputFile1 = fopen("testYnoised3.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	BITMAPFILEHEADER bmpFile2;
 	BITMAPINFOHEADER bmpInfo2;
 	FILE* inputFile2 = NULL;
-	inputFile2 = fopen("testY4.bmp", "rb");
+	inputFile2 = fopen("test3.bmp", "rb");
 	fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
 	fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
@@ -156,16 +156,22 @@ int main(int argc, char* argv[])
 			double G = sqrt(Gx[j * width2 + i] * Gx[j * width2 + i] + Gy[j * width2 + i] * Gy[j * width2 + i]);
 
 			// Thresholding
-			if (G >= 130)
+			if (G >= 250) // 130
 				y3[j * width2 + i] = 255;
 			else
 				y3[j * width2 + i] = 0;
 		}
+	// 130    200    250
+	// 25.40  25.45  25.46
+	// 23.04  23.12  23.11
+	// 17.47  17.49  17.51
+	// 21.36  21.44  21.45
+	// 15.43  15.44  15.47
 
 	// ED(y3) Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Denoise(y4) Code //
+	// Mask(ymsk) Code //
 
 	// 함수 ymsk : Mask
 	unsigned char* ymsk = NULL;
@@ -186,18 +192,23 @@ int main(int argc, char* argv[])
 			if (y3[j * width2 + i] == 255)
 				ymsk[j * width2 + i] = 0;
 
+	// Mask(ymsk) Code //
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Denoise(y4) Code //
+
 	// 함수 y4 : Denoise
 	unsigned char* y4 = NULL;
 	y4 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
 	// Median Filter (mask인 부분, 즉 0인 부분은 제외)
-	int len = 9; 
-	int value[9]; 
+	int len = 9;
+	int value[9];
 	for (int j = 1; j < height2 - 1; j++)
 		for (int i = 1; i < width2 - 1; i++)
 		{
 			int F, k = 0, flag = 0;
-			for (int m = 0; m < 3; m++) 
+			for (int m = 0; m < 3; m++)
 				for (int n = 0; n < 3; n++)
 				{
 					value[k] = ymsk[(j - 1 + m) * width2 + (i - 1 + n)];
@@ -222,6 +233,7 @@ int main(int argc, char* argv[])
 			y4[j * width2 + i] = F;
 		}
 
+	// Mask되었던 Edge 부분 Paste
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
 		{
@@ -256,10 +268,6 @@ int main(int argc, char* argv[])
 	mse /= (width2 * height2);
 	psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
 	printf("MSE = %.2lf\nPSNR = %.2lfdB\n\n", mse, psnr);
-	// Bilinear + Median3F : 15.48
-	// Bilinear : 15.45
-	// Bilinear + Mean3F : 15.43
-	// Bilinear + Gauss3F : 15.42
 
 	// PSNR Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,13 +279,13 @@ int main(int argc, char* argv[])
 	// 아웃풋이미지1 result1 할당
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++) {
-			outputImg1[j * stride2 + 3 * i + 0] = y4[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 1] = y4[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 2] = y4[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 0] = y3[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 1] = y3[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 2] = y3[j * width2 + i];
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("test4Yresult.bmp", "wb");
+	FILE* outputFile1 = fopen("result1.bmp", "wb");
 	bmpInfo1.biWidth = width2;
 	bmpInfo1.biHeight = height2;
 	bmpInfo1.biSizeImage = size2;
