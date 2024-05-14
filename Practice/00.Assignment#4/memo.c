@@ -176,14 +176,11 @@ int main(int argc, char* argv[])
 	unsigned char* y4 = NULL;
 	y4 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
-	// (1)
-	// 전체 필터링 적용
-	// 엣지 부분 paste
-	// (2)
 	// 엣지 부분 mask
-	// mask 제외 필터링
+	// y2에서, 0인 부분은 1로 만들기
+	// y3에서 255인 좌표는 y3에서 0으로 mask 하기
 
-	// Convolution
+	// Convolution (mask, 즉 0인 부분은 제외)
 	for (int j = 1; j < height2 - 1; j++)
 		for (int i = 1; i < width2 - 1; i++)
 		{
