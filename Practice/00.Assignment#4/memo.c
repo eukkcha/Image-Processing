@@ -7,19 +7,19 @@
 
 int main(int argc, char* argv[])
 {
-	// 영상1 불러오기 (testYSubNoised.bmp)
+	// 영상1 불러오기 (treeYNoised.bmp)
 	BITMAPFILEHEADER bmpFile1;
 	BITMAPINFOHEADER bmpInfo1;
 	FILE* inputFile1 = NULL;
-	inputFile1 = fopen("testYSubNoised1.bmp", "rb");
+	inputFile1 = fopen("testYSubNoised4.bmp", "rb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
-	// 영상2 불러오기 (testY.bmp)
+	// 영상2 불러오기 (treeYYY.bmp)
 	BITMAPFILEHEADER bmpFile2;
 	BITMAPINFOHEADER bmpInfo2;
 	FILE* inputFile2 = NULL;
-	inputFile2 = fopen("testY1.bmp", "rb");
+	inputFile2 = fopen("testY4.bmp", "rb");
 	fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
 	fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
@@ -90,8 +90,8 @@ int main(int argc, char* argv[])
 	// ED(y3) Code //
 
 	double sobelfilterx[3][3] = { {-1, 0, 1},
-							      {-2, 0, 2},
-							      {-1, 0, 1} };
+								  {-2, 0, 2},
+								  {-1, 0, 1} };
 	double sobelfiltery[3][3] = { {1, 2, 1},
 								  {0, 0, 0},
 								  {-1, -2, -1} };
@@ -156,9 +156,9 @@ int main(int argc, char* argv[])
 			double G = sqrt(Gx[j * width2 + i] * Gx[j * width2 + i] + Gy[j * width2 + i] * Gy[j * width2 + i]);
 
 			// Thresholding
-			if (G >= 200)
+			if (G >= 130)
 				y3[j * width2 + i] = 255;
-			else 
+			else
 				y3[j * width2 + i] = 0;
 		}
 
@@ -167,28 +167,68 @@ int main(int argc, char* argv[])
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Denoise(y4) Code //
 
-	// Filter
-	double Mean3F[3][3] = { {(double)1 / 9, (double)1 / 9, (double)1 / 9},
-							{(double)1 / 9, (double)1 / 9, (double)1 / 9},
-							{(double)1 / 9, (double)1 / 9, (double)1 / 9} };
+	// 함수 ymsk : Mask
+	unsigned char* ymsk = NULL;
+	ymsk = (unsigned char*)calloc(size2, sizeof(unsigned char));
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++)
+			ymsk[j * width2 + i] = y2[j * width2 + i];
+
+	// 엣지 부분 mask
+	// y2에서 0인 부분은 1로 만들기
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++)
+			if (y2[j * width2 + i] == 0)
+				ymsk[j * width2 + i]++;
+	// y3에서 255인 좌표는 y2에서 0으로 mask 하기
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++)
+			if (y3[j * width2 + i] == 255)
+				ymsk[j * width2 + i] = 0;
 
 	// 함수 y4 : Denoise
 	unsigned char* y4 = NULL;
 	y4 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
-	// 엣지 부분 mask
-	// y2에서, 0인 부분은 1로 만들기
-	// y3에서 255인 좌표는 y3에서 0으로 mask 하기
-
-	// Convolution (mask, 즉 0인 부분은 제외)
+	// Median Filter (mask인 부분, 즉 0인 부분은 제외)
+	int len = 9; 
+	int value[9]; 
 	for (int j = 1; j < height2 - 1; j++)
 		for (int i = 1; i < width2 - 1; i++)
 		{
-			int F = 0;
-			for (int m = 0; m < 3; m++)
+			int F, k = 0, flag = 0;
+			for (int m = 0; m < 3; m++) 
 				for (int n = 0; n < 3; n++)
-					F += y2[(j - 1 + m) * width2 + (i - 1 + n)] * Mean3F[m][n];
+				{
+					value[k] = ymsk[(j - 1 + m) * width2 + (i - 1 + n)];
+					if (value[k] == 0) flag++;
+					k++;
+				}
+
+			if (flag == 1) continue;
+
+			// 중앙값 구하기
+			int m, n, tmp = 0;
+			for (m = 0; m < len; m++)
+				for (n = 0; n < (len - 1) - m; n++)
+					if (value[n] > value[n + 1])
+					{
+						tmp = value[n];
+						value[n] = value[n + 1];
+						value[n + 1] = tmp;
+					}
+			F = value[len / 2];
+
 			y4[j * width2 + i] = F;
+		}
+
+	for (int j = 0; j < height2; j++)
+		for (int i = 0; i < width2; i++)
+		{
+			if (y4[j * width2 + i] == 0)
+			{
+				y4[j * width2 + i] = y2[j * width2 + i];
+			}
 		}
 
 	// Denoise(y4) Code //
@@ -216,11 +256,10 @@ int main(int argc, char* argv[])
 	mse /= (width2 * height2);
 	psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
 	printf("MSE = %.2lf\nPSNR = %.2lfdB\n\n", mse, psnr);
-	// test1 Nni : 21.76 // Bi : 24.94 // Ntap2 : 24.16 // Ntap4 : 24.56 // Ntap6 : 21.43 // Ntap8 : 20.32
-	// test2 Nni : 19.82 // Bi : 22.82 // Ntap2 : 21.13 // Ntap4 : 21.99 // Ntap6 : 18.48
-	// test3 Nni : 14.73 // Bi : 17.48 // Ntap4 : 16.49 // Ntap6 : 13.63
-	// test4 Nni : 18.66 // Ntap4 : 20.57 // Ntap6 : 17.58
-	// Bi > Ntap4 > Ntap2
+	// Bilinear + Median3F : 15.48
+	// Bilinear : 15.45
+	// Bilinear + Mean3F : 15.43
+	// Bilinear + Gauss3F : 15.42
 
 	// PSNR Code //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +277,7 @@ int main(int argc, char* argv[])
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("testYBi1.bmp", "wb");
+	FILE* outputFile1 = fopen("test4Yresult.bmp", "wb");
 	bmpInfo1.biWidth = width2;
 	bmpInfo1.biHeight = height2;
 	bmpInfo1.biSizeImage = size2;
