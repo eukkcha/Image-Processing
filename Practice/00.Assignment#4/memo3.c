@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 		{
 			int F, k = 0;
 			for (int m = 0; m < 3; m++) 
-				for (int n = 0; n < 3; n++)
+				for (int n = 0; n < 3; n++) 
 				{
 					value[k] = y3[(j - p + m) * pwidth + (i - p + n)];
 					k++;
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 	// 함수 y4 : Mean 
 	unsigned char* y4 = (unsigned char*)calloc(psize, sizeof(unsigned char));
 
-	// Convolution
+	// Convolution (Mean3F)
 	for (int j = p; j < p + height2; j++)
 		for (int i = p; i < p + width2; i++) 
 		{
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < width2; i++)
 			y[j * width2 + i] = inputImg2[j * stride2 + 3 * i + 0];
 
-	// PSNR1
+	// PSNR1 (원본 - upsample)
 	double mse = 0, psnr;
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
 	psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
 	printf("MSE = %.2lf\nPSNR = %.2lfdB\n\n", mse, psnr);
 
-	// PSNR2
+	// PSNR2 (원본 - denoise)
 	double mse2 = 0, psnr2;
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++)
@@ -214,16 +214,24 @@ int main(int argc, char* argv[])
 	unsigned char* outputImg1 = NULL;
 	outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
-	// 아웃풋이미지1 result1 할당
+	//// 아웃풋이미지1 y2 할당 
+	//for (int j = 0; j < height2; j++)
+	//	for (int i = 0; i < width2; i++) {
+	//		outputImg1[j * stride2 + 3 * i + 0] = y2[j * width2 + i];
+	//		outputImg1[j * stride2 + 3 * i + 1] = y2[j * width2 + i];
+	//		outputImg1[j * stride2 + 3 * i + 2] = y2[j * width2 + i];
+	//	}
+
+	// 아웃풋이미지1 y4 할당 (패딩 부분 제외)
 	for (int j = 0; j < height2; j++)
 		for (int i = 0; i < width2; i++) {
-			outputImg1[j * stride2 + 3 * i + 0] = y2[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 1] = y2[j * width2 + i];
-			outputImg1[j * stride2 + 3 * i + 2] = y2[j * width2 + i];
+			outputImg1[j * stride2 + 3 * i + 0] = y4[(p + j) * pwidth + (p + i)];
+			outputImg1[j * stride2 + 3 * i + 1] = y4[(p + j) * pwidth + (p + i)];
+			outputImg1[j * stride2 + 3 * i + 2] = y4[(p + j) * pwidth + (p + i)];
 		}
 
 	// 아웃풋이미지 파일1
-	FILE* outputFile1 = fopen("testYresult.bmp", "wb");
+	FILE* outputFile1 = fopen("testY5_2.bmp", "wb");
 	bmpInfo1.biWidth = width2;
 	bmpInfo1.biHeight = height2;
 	bmpInfo1.biSizeImage = size2;
@@ -238,11 +246,11 @@ int main(int argc, char* argv[])
 	free(inputImg2);
 	fclose(inputFile2);
 
-	free(y); // 원본
+	free(y);  // 원본
 	free(y1); // Subsample & Noise
-	free(y2); // Upsample
-	free(y3); // Padding & Denoise
-	free(y4);
+	free(y2); // Bilinear Upsample
+	free(y3); // Mirror Padding & Median Filter (Best?)
+	free(y4); // Mean Filter
 
 	free(outputImg1);
 	fclose(outputFile1);
