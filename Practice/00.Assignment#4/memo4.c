@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
 	// Set Gaussian filter Size
 	double kernel[9][9];
-	int kernelSize = 9;
+	int kernelSize = 9, offset = kernelSize / 2;
 
 	double sum = 0.0;
 	double sigma = 1.7; // The optimal Gaussian standard deviation
