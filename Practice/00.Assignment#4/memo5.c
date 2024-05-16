@@ -90,7 +90,6 @@ int main(int argc, char* argv[])
 
 	double sum = 0.0;
 	double sigma = 1.7; // The optimal Gaussian standard deviation
-	int offset = kernelSize / 2;
 	// Caculate Gaussian values
 	for (int m = -offset; m <= offset; m++)
 		for (int n = -offset; n <= offset; n++) {
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
 
 	// Convolution
 	for (int j = 0; j < height2; j++)
-		for (int i = 0; i < width2; i++) 
+		for (int i = 0; i < width2; i++)
 		{
 			double value = 0.0;
 			for (int m = -offset; m <= offset; m++)
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
 					if (px >= 0 && px < width2 && py >= 0 && py < height2)
 						value += y2[py * width2 + px] * kernel[m + offset][n + offset];
 				}
-			
+
 			result[j * width2 + i] = (unsigned char)value;
 		}
 
