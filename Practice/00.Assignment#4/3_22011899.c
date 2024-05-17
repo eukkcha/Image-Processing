@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	FILE* inputFile1 = NULL;
 	FILE* outputFile1 = NULL;
 	inputFile1 = fopen(argv[1], "rb");
-    outputFile1 = fopen("22011899.bmp", "wb");
+	outputFile1 = fopen("22011899.bmp", "wb");
 	fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
 	fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
