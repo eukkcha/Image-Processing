@@ -11,14 +11,14 @@
 
 int main(int argc, char* argv[])
 {
-	// I/O Code //
+    // I/O Code //
     // Assignment#4 Starting Rule
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
-	FILE* outputFile1 = NULL;
+    FILE* outputFile1 = NULL;
     inputFile1 = fopen(argv[1], "rb");
-	outputFile1 = fopen("22011899.bmp", "wb");
+    outputFile1 = fopen("22011899.bmp", "wb");
     fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
     fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
 
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
         for (int i = 0; i < width1; i++)
             y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
-	// Denoise Code //
+    // Denoise Code //
     // y2: Denoise(Gaussian Filter)
     unsigned char* y2 = calloc(size1, sizeof(unsigned char));
 
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 
     free(y1); // Subsampled & Noised
     free(y2); // Gaussian Filter
-	free(y3); // Bilinear Interpolation
+    free(y3); // Bilinear Interpolation
 
     free(outputImg1);
     fclose(outputFile1);
