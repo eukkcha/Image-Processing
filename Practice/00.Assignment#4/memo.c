@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 
 	free(y);  // Original
 	free(y1); // Subsample & Noise
-	free(y2); // Apply Bilinear Interpolation
+	free(y2); // Apply Bilinear Interpolation + Median Filter
 	free(result); // Apply Gaussian Filter
 
 	free(outputImg1);
