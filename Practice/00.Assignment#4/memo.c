@@ -11,7 +11,7 @@
 
 int main(int argc, char* argv[])
 {
-    // Input File1 (subsample & noise)
+    // Input File1 (subsampled & noised)
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
@@ -39,15 +39,15 @@ int main(int argc, char* argv[])
     inputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
     fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
 
-    // Function y1 : subsample & noise 
+    // Function y1 : subsampled & noised
     unsigned char* y1 = NULL;
     y1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
             y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
-    // result: Denoise(Gaussian Filter)
-    unsigned char* result = calloc(size1, sizeof(unsigned char));
+    // y2: Denoise(Gaussian Filter)
+    unsigned char* y2 = calloc(size1, sizeof(unsigned char));
 
     // Set Gaussian Filter Kernel Size
     double kernel[9][9];
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
                         value += y1[py * width1 + px] * kernel[m + offset][n + offset];
                 }
 
-            result[j * width1 + i] = (unsigned char)value;
+            y2[j * width1 + i] = (unsigned char)value;
         }
 
     // Upsample Code //
@@ -88,8 +88,8 @@ int main(int argc, char* argv[])
     int stride2 = ((bitCnt1 / 8) * width2 + 3) / 4 * 4;
     int size2 = stride2 * height2;
 
-    // Function y2: Upsample(Bilinear Interpolation)
-    unsigned char* y2 = (unsigned char*)calloc(size2, sizeof(unsigned char));
+    // Function y3: Upsample(Bilinear Interpolation)
+    unsigned char* y3 = (unsigned char*)calloc(size2, sizeof(unsigned char));
 
     // Bilinear Interpolation
     for (int j = 0; j < height2; j++)
@@ -106,12 +106,12 @@ int main(int argc, char* argv[])
             double dx = origX - x01, dy = origY - y01;
 
             // Weighted average of the 4 pixels
-            double value = (1 - dx) * (1 - dy) * result[y01 * width1 + x01] +
-                dx * (1 - dy) * result[y01 * width1 + x02] +
-                (1 - dx) * dy * result[y02 * width1 + x01] +
-                dx * dy * result[y02 * width1 + x02];
+            double value = (1 - dx) * (1 - dy) * y2[y01 * width1 + x01] +
+                dx * (1 - dy) * y2[y01 * width1 + x02] +
+                (1 - dx) * dy * y2[y02 * width1 + x01] +
+                dx * dy * y2[y02 * width1 + x02];
 
-            y2[j * width2 + i] = (unsigned char)value;
+            y3[j * width2 + i] = (unsigned char)value;
         }
 
     // PSNR Code //
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     double mse = 0, psnr;
     for (int j = 0; j < height2; j++)
         for (int i = 0; i < width2; i++)
-            mse += (double)((y[j * width2 + i] - y2[j * width2 + i]) * (y[j * width2 + i] - y2[j * width2 + i]));
+            mse += (double)((y[j * width2 + i] - y3[j * width2 + i]) * (y[j * width2 + i] - y3[j * width2 + i]));
     mse /= (width2 * height2);
     psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
     printf("%.2lf(%.2lf)\n", psnr, mse);
@@ -142,9 +142,9 @@ int main(int argc, char* argv[])
     outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
     for (int j = 0; j < height2; j++)
         for (int i = 0; i < width2; i++) {
-            outputImg1[j * stride2 + 3 * i + 0] = y2[j * width2 + i];
-            outputImg1[j * stride2 + 3 * i + 1] = y2[j * width2 + i];
-            outputImg1[j * stride2 + 3 * i + 2] = y2[j * width2 + i];
+            outputImg1[j * stride2 + 3 * i + 0] = y3[j * width2 + i];
+            outputImg1[j * stride2 + 3 * i + 1] = y3[j * width2 + i];
+            outputImg1[j * stride2 + 3 * i + 2] = y3[j * width2 + i];
         }
 
     // output to BMP file
@@ -164,9 +164,9 @@ int main(int argc, char* argv[])
     fclose(inputFile2);
 
     free(y);  // Original
-    free(y1); // Subsample & Noise
-    free(y2); // Apply Bilinear Interpolation + Median Filter
-    free(result); // Apply Gaussian Filter
+    free(y1); // Subsampled & Noised
+    free(y2); // Gaussian Filter
+	free(y3); // Bilinear Interpolation
 
     free(outputImg1);
     fclose(outputFile1);
