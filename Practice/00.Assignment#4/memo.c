@@ -11,21 +11,16 @@
 
 int main(int argc, char* argv[])
 {
-    // Input File1 (subsampled & noised)
+    // I/O Code //
+    // Assignment#4 Starting Rule
     BITMAPFILEHEADER bmpFile1;
     BITMAPINFOHEADER bmpInfo1;
     FILE* inputFile1 = NULL;
+    FILE* outputFile1 = NULL;
     inputFile1 = fopen("testY5n.bmp", "rb");
+    outputFile1 = fopen("22011899.bmp", "wb");
     fread(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, inputFile1);
     fread(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, inputFile1);
-
-    // Input File2 (Original)
-    BITMAPFILEHEADER bmpFile2;
-    BITMAPINFOHEADER bmpInfo2;
-    FILE* inputFile2 = NULL;
-    inputFile2 = fopen("testY5.bmp", "rb");
-    fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
-    fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
 
     // File1 Size Info (256 x 256)
     int width1 = bmpInfo1.biWidth;
@@ -39,14 +34,14 @@ int main(int argc, char* argv[])
     inputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
     fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
 
-    // Function y1 : subsampled & noised
+    // Function y1: subsampled & noised
     unsigned char* y1 = NULL;
     y1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
             y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
-	// Denoise Code //
+    // Denoise Code //
     // y2: Denoise(Gaussian Filter)
     unsigned char* y2 = calloc(size1, sizeof(unsigned char));
 
@@ -116,6 +111,14 @@ int main(int argc, char* argv[])
         }
 
     // PSNR Code //
+    // Input File2 (Original)
+    BITMAPFILEHEADER bmpFile2;
+    BITMAPINFOHEADER bmpInfo2;
+    FILE* inputFile2 = NULL;
+    inputFile2 = fopen("testY5.bmp", "rb");
+    fread(&bmpFile2, sizeof(BITMAPFILEHEADER), 1, inputFile2);
+    fread(&bmpInfo2, sizeof(BITMAPINFOHEADER), 1, inputFile2);
+
     // Function inputImg2 (Original.bmp)
     unsigned char* inputImg2 = NULL;
     inputImg2 = (unsigned char*)calloc(size2, sizeof(unsigned char));
@@ -137,7 +140,7 @@ int main(int argc, char* argv[])
     psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
     printf("%.2lf(%.2lf)\n", psnr, mse);
 
-    // Ouput Code //
+    // I/O Code //
     // outputImg1: result
     unsigned char* outputImg1 = NULL;
     outputImg1 = (unsigned char*)calloc(size2, sizeof(unsigned char));
@@ -149,7 +152,6 @@ int main(int argc, char* argv[])
         }
 
     // output to BMP file
-    FILE* outputFile1 = fopen("Result.bmp", "wb");
     bmpInfo1.biWidth = width2;
     bmpInfo1.biHeight = height2;
     bmpInfo1.biSizeImage = size2;
@@ -164,7 +166,7 @@ int main(int argc, char* argv[])
     free(inputImg2);
     fclose(inputFile2);
 
-    free(y);  // Original
+    free(y);
     free(y1); // Subsampled & Noised
     free(y2); // Gaussian Filter
     free(y3); // Bilinear Interpolation
