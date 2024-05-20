@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
         for (int i = 0; i < width1; i++)
             y1[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
+	// Denoise Code //
     // y2: Denoise(Gaussian Filter)
     unsigned char* y2 = calloc(size1, sizeof(unsigned char));
 
@@ -166,7 +167,7 @@ int main(int argc, char* argv[])
     free(y);  // Original
     free(y1); // Subsampled & Noised
     free(y2); // Gaussian Filter
-	free(y3); // Bilinear Interpolation
+    free(y3); // Bilinear Interpolation
 
     free(outputImg1);
     fclose(outputFile1);
