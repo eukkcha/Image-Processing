@@ -42,58 +42,62 @@ int main(int argc, char* argv[])
     int pheight = height1 + 2 * p;
     int psize = pwidth * pheight * 3;
 
-    // Function result: Padding & Filtering
-    unsigned char* result = NULL;
-    result = (unsigned char*)calloc(psize, sizeof(unsigned char));
+    // Function y2: Padding
+    unsigned char* y2 = NULL;
+    y2 = (unsigned char*)calloc(psize, sizeof(unsigned char));
 
     // 1. Zero Padding
     for (int j = 0; j < pheight; j++)
         for (int i = 0; i < pwidth; i++)
-            result[j * pwidth + i] = 0;
+            y2[j * pwidth + i] = 0;
     // Paste Original Image to Center
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
-            result[(p + j) * pwidth + (p + i)] = y1[j * width1 + i];
+            y2[(p + j) * pwidth + (p + i)] = y1[j * width1 + i];
 
     // 2. Replicate Padding
     for (int j = 0; j < p; j++)
         for (int i = 0; i < width1; i++) {
-            result[j * pwidth + p + i] = y1[i]; // 상단
-            result[(pheight - 1 - j) * pwidth + p + i] = y1[(height1 - 1) * width1 + i]; // 하단
+            y2[j * pwidth + p + i] = y1[i]; // 상단
+            y2[(pheight - 1 - j) * pwidth + p + i] = y1[(height1 - 1) * width1 + i]; // 하단
         }
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < p; i++) {
-            result[(p + j) * pwidth + i] = y1[j * width1]; // 좌측
-            result[(p + j) * pwidth + (pwidth - 1 - i)] = y1[j * width1 + width1 - 1]; // 우측
+            y2[(p + j) * pwidth + i] = y1[j * width1]; // 좌측
+            y2[(p + j) * pwidth + (pwidth - 1 - i)] = y1[j * width1 + width1 - 1]; // 우측
         }
     for (int j = 0; j < p; j++)
         for (int i = 0; i < p; i++) {
-            result[j * pwidth + i] = y1[0]; // 좌상단
-            result[j * pwidth + pwidth - 1 - i] = y1[width1 - 1]; // 우상단
-            result[(pheight - 1 - j) * pwidth + i] = y1[(height1 - 1) * width1]; // 좌하단
-            result[(pheight - 1 - j) * pwidth + pwidth - 1 - i] = y1[(height1 - 1) * width1 + width1 - 1]; // 우하단
+            y2[j * pwidth + i] = y1[0]; // 좌상단
+            y2[j * pwidth + pwidth - 1 - i] = y1[width1 - 1]; // 우상단
+            y2[(pheight - 1 - j) * pwidth + i] = y1[(height1 - 1) * width1]; // 좌하단
+            y2[(pheight - 1 - j) * pwidth + pwidth - 1 - i] = y1[(height1 - 1) * width1 + width1 - 1]; // 우하단
         }
 
     // 3. Mirror Padding
 	for (int j = 0; j < p; j++)
 		for (int i = 0; i < width1; i++) {
-			result[(p - 1 - j) * pwidth + p + i] = y1[(j + 1) * width1 + i]; // 상단
-			result[(pheight - p + j) * pwidth + p + i] = y1[(height1 - 2 - j) * width1 + i]; // 하단
+			y2[(p - 1 - j) * pwidth + p + i] = y1[(j + 1) * width1 + i]; // 상단
+			y2[(pheight - p + j) * pwidth + p + i] = y1[(height1 - 2 - j) * width1 + i]; // 하단
 		}
 	for (int j = 0; j < height1; j++)
 		for (int i = 0; i < p; i++) {
-			result[(p + j) * pwidth + p - 1 - i] = y1[j * width1 + 1 + i]; // 좌측
-			result[(p + j) * pwidth + (pwidth - p + i)] = y1[j * width1 + width1 - 2 - i]; // 우측
+			y2[(p + j) * pwidth + p - 1 - i] = y1[j * width1 + 1 + i]; // 좌측
+			y2[(p + j) * pwidth + (pwidth - p + i)] = y1[j * width1 + width1 - 2 - i]; // 우측
 		}
 	for (int j = 0; j < p; j++)
 		for (int i = 0; i < p; i++) {
-			result[(p - 1 - j) * pwidth + (p - 1 - i)] = y1[(1 + j) * width1 + (1 + i)]; // 좌상단
-			result[(p - 1 - j) * pwidth + pwidth - p + i] = y1[(1 + j) * width1 + width1 - 2 - i]; // 우상단
-			result[(pheight - p + j) * pwidth + p - 1 - i] = y1[(height1 - 2 - j) * width1 + 1 + i]; // 좌하단
-			result[(pheight - p + j) * pwidth + pwidth - p + i] = y1[(height1 - 2 - j) * width1 + width1 - 2 - i]; // 우하단
+			y2[(p - 1 - j) * pwidth + (p - 1 - i)] = y1[(1 + j) * width1 + (1 + i)]; // 좌상단
+			y2[(p - 1 - j) * pwidth + pwidth - p + i] = y1[(1 + j) * width1 + width1 - 2 - i]; // 우상단
+			y2[(pheight - p + j) * pwidth + p - 1 - i] = y1[(height1 - 2 - j) * width1 + 1 + i]; // 좌하단
+			y2[(pheight - p + j) * pwidth + pwidth - p + i] = y1[(height1 - 2 - j) * width1 + width1 - 2 - i]; // 우하단
 		}
 
     // Filter Code //
+    // Function y3: Filter
+    unsigned char* y3 = NULL;
+    y3 = (unsigned char*)calloc(size1, sizeof(unsigned char));
+
     // Gaussian Filter 3x3
     double Gauss3F[3][3] = { {(double)1 / 16, (double)2 / 16, (double)1 / 16},
                               {(double)2 / 16, (double)4 / 16, (double)2 / 16},
@@ -109,9 +113,9 @@ int main(int argc, char* argv[])
             double value = 0.0;
             for (int m = 0; m < 3; m++) // 3x3 Filter
                 for (int n = 0; n < 3; n++)
-                    value += result[(j - p + m) * pwidth + (i - p + n)] * Gauss3F[m][n];
+                    value += y2[(j - p + m) * pwidth + (i - p + n)] * Gauss3F[m][n];
 
-            result[j * pwidth + i] = (unsigned char)value;
+            y3[(j - p) * width1 + (i - p)] = (unsigned char)value;
         }
 
     // PSNR Code //
@@ -145,24 +149,24 @@ int main(int argc, char* argv[])
     printf("[noised PSNR]\n%.2lfdB(%.2lf)\n\n", psnr, mse);
     // 18.13dB
 
-    // PSNR2: original - result (y - result)
+    // PSNR2: original - result (y - y3)
     double mse_result = 0, psnr_result;
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
-            mse_result += (double)((y[j * width1 + i] - result[(p + j) * pwidth + (p + i)]) * (y[j * width1 + i] - result[(p + j) * pwidth + (p + i)]));
+            mse_result += (double)((y[j * width1 + i] - y3[j * width1 + i]) * (y[j * width1 + i] - y3[j * width1 + i]));
     mse_result /= (width1 * height1);
     psnr_result = mse_result != 0.0 ? 10.0 * log10(255 * 255 / mse_result) : 99.99;
     printf("[result PSNR]\n%.2lfdB(%.2lf)\n\n", psnr_result, mse_result);
 
     // I/O Code //
-    // outputImg1: result (exclude padding part)
+    // outputImg1: y3
     unsigned char* outputImg1 = NULL;
     outputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++) {
-            outputImg1[j * stride1 + 3 * i + 0] = result[(p + j) * pwidth + (p + i)];
-            outputImg1[j * stride1 + 3 * i + 1] = result[(p + j) * pwidth + (p + i)];
-            outputImg1[j * stride1 + 3 * i + 2] = result[(p + j) * pwidth + (p + i)];
+            outputImg1[j * stride1 + 3 * i + 0] = y3[j * width1 + i];
+            outputImg1[j * stride1 + 3 * i + 1] = y3[j * width1 + i];
+            outputImg1[j * stride1 + 3 * i + 2] = y3[j * width1 + i];
         }
 
     // output to BMP file
@@ -179,40 +183,19 @@ int main(int argc, char* argv[])
 
     free(y);
     free(y1);
-    free(result);
+    free(y2);
+    free(y3);
 
     free(outputImg1);
     fclose(outputFile1);
 }
 
-//// Padding Debugging (padding이 잘 되었는지 확인)
-//for (int j = 0; j < 5; j++) // 좌상단
-//{
-//    for (int i = 0; i < 5; i++)
-//        printf("%d ", result[j * pwidth + i]);
-//    printf("\n");
-//}
-//printf("\n");
-//for (int j = pheight - 5; j < pheight; j++) // 우상단
-//{
-//    for (int i = 0; i < 5; i++)
-//        printf("%d ", result[j * pwidth + i]);
-//    printf("\n");
-//}
-//printf("\n");
-//for (int j = 0; j < 5; j++) // 좌하단
-//{
-//    for (int i = pwidth - 5; i < pwidth; i++)
-//        printf("%d ", result[j * pwidth + i]);
-//    printf("\n");
-//}
-//printf("\n");
-//for (int j = pheight - 5; j < pheight; j++) // 우하단
-//{
-//    for (int i = pwidth - 5; i < pwidth; i++)
-//        printf("%d ", result[j * pwidth + i]);
-//    printf("\n");
-//}
-//printf("\n");
-//
-//printf("----------\n\n");
+// // outputImg1: y2 (exclude padding part)
+//     unsigned char* outputImg1 = NULL;
+//     outputImg1 = (unsigned char*)calloc(size1, sizeof(unsigned char));
+//     for (int j = 0; j < height1; j++)
+//         for (int i = 0; i < width1; i++) {
+//             outputImg1[j * stride1 + 3 * i + 0] = y2[(p + j) * pwidth + (p + i)];
+//             outputImg1[j * stride1 + 3 * i + 1] = y2[(p + j) * pwidth + (p + i)];
+//             outputImg1[j * stride1 + 3 * i + 2] = y2[(p + j) * pwidth + (p + i)];
+//         }
