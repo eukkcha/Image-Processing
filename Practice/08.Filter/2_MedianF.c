@@ -193,6 +193,7 @@ int main(int argc, char* argv[])
     free(y);
     free(y1);
     free(result);
+    free(result2);
 
     free(outputImg1);
     fclose(outputFile1);
