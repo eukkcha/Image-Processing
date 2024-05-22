@@ -5,16 +5,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-//알고리즘 내용
-//5x5 gaussian filter
-//3x3 gaussian filter
-//3x3 mean filter
-//same padding
-//zero padding
-//replicate padding
-//convolution
-//MSE(PSNR)
-
 int main(int argc, char* argv[])
 {
     //영상1 헤더파일 선언
