@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     mse /= (width1 * height1);
     psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
     printf("[noised PSNR]\n%.2lfdB(%.2lf)\n\n", psnr, mse);
-    //18.13dB
+    // 18.13dB
 
     // PSNR2: original - result (y - result)
     double mse_result = 0, psnr_result;
