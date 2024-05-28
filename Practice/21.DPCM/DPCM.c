@@ -24,54 +24,45 @@ int main(int argc, char *argv[])
     int stride1 = (((bitCnt1 / 8) * width1) + 3 / 4 * 4);
 
     // InputImg1
-    unsigned char *inputImg1 = NULL;
-    inputImg1 = (unsigned char *)calloc(size1, sizeof(unsigned char));
+    unsigned char *inputImg1 = (unsigned char *)calloc(size1, sizeof(unsigned char));
     fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
 
     // Function o: original
-    unsigned char *o = NULL;
-    o = (unsigned char *)calloc(size1, sizeof(unsigned char));
+    unsigned char *o = (unsigned char *)calloc(size1, sizeof(unsigned char));
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
             o[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
     // DPCM Code //
-    // Function e: Prediction Error
-    unsigned char *e = NULL;
-    e = (unsigned char *)calloc(size1, sizeof(unsigned char));
+    // 1. DPCM Based Encoder
+    unsigned char *e = (unsigned char *)calloc(size1, sizeof(unsigned char));    // Function e: Prediction Error
+    unsigned char *qtz = (unsigned char *)calloc(size1, sizeof(unsigned char));  // Function qtz: Quantization
+    unsigned char *iqtz = (unsigned char *)calloc(size1, sizeof(unsigned char)); // Function iqtz: Inverse Quantization
+    unsigned char *r = (unsigned char *)calloc(size1, sizeof(unsigned char));    // Function r: Reconstruction
 
-    // Function qtz: Quantization
-    unsigned char *qtz = NULL;
-    qtz = (unsigned char *)calloc(size1, sizeof(unsigned char));
-
-    // Function iqtz: Inverse Quantization
-    unsigned char *iqtz = NULL;
-    iqtz = (unsigned char *)calloc(size1, sizeof(unsigned char));
-    
-    // Function r: Reconstruction
-    unsigned char *r = NULL;
-    r = (unsigned char *)calloc(size1, sizeof(unsigned char));
-
-    // bitstream.txt File
+    // Open bitstream.txt for writing
     FILE *bitstream = fopen("bitstream.txt", "w");
 
     // outputImg1: r(enc)
-    unsigned char *outputImg1 = NULL;
-    outputImg1 = (unsigned char *)calloc(size1, sizeof(unsigned char));
+    unsigned char *outputImg1 = (unsigned char *)calloc(size1, sizeof(unsigned char));
 
     int p;     // predicted
     int q = 5; // Quantization parameter
-
-    // DPCM Based Encoder
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
         {
             if (i == 0)
                 p = 128;                                 // Prediction with a predfined value for the first pixel of each row
+
             e[j * width1 + i] = o[j * width1 + i] - p;   // Prediction Error
             qtz[j * width1 + i] = e[j * width1 + i] / q; // Quantization
 
-            // Binarization
+            // Binarization code
+            char binStr[7];
+            for (int b = 5; b >= 0; b--)
+                binStr[5 - b] = (qtz[j * width1 + i] & (1 << b)) ? '1' : '0';
+            binStr[6] = '\0';
+            fprintf(bitstream, "%s\n", binStr);
 
             iqtz[j * width1 + i] = qtz[j * width1 + i] * q; // Inverse Quantization
             r[j * width1 + i] = iqtz[j * width1 + i] + p;   // Reconstruction
@@ -83,22 +74,67 @@ int main(int argc, char *argv[])
             outputImg1[j * stride1 + 3 * i + 2] = r[j * width1 + i];
         }
 
-    // outputFile1: reconDecY.bmp
-    FILE *outputFile1 = fopen("reconDecY.bmp", "wb");
+    // outputFile1: reconEncY.bmp
+    FILE *outputFile1 = fopen("reconEncY.bmp", "wb");
     fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile1);
     fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
     fwrite(outputImg1, sizeof(unsigned char), size1, outputFile1);
+    
+    // free memory
+    fclose(bitstream);
 
-    // // DPCM Based Decoder
-    // for (int j = 0; j < height1; j++)
-    //     for (int i = 0; i < width1; i++)
-    //     {
-    //         // Inverse Binarization
+    // DPCM Based Decoder
+    unsigned char *qtz2 = (unsigned char *)calloc(size1, sizeof(unsigned char));  // Function qtz: Quantization
+    unsigned char *iqtz2 = (unsigned char *)calloc(size1, sizeof(unsigned char)); // Function iqtz: Inverse Quantization
+    unsigned char *r2 = (unsigned char *)calloc(size1, sizeof(unsigned char));    // Function r: Reconstruction
 
-    //         iqtz[j * width1 + i] = qtz[j * width1 + i] * q; // Inverse Quantization
-    //         r[j * width1 + i] = iqtz[j * width1 + i] + p; // Reconstruction
-    //         p = r[j * width1 + i]; // Update prediction
-    //     }
+    // Open bitstream.txt for reading
+    bitstream = fopen("bitstream.txt", "r");
+    
+    // outputImg2: r(dec)
+    unsigned char *outputImg2 = (unsigned char *)calloc(size1, sizeof(unsigned char));
+
+    for (int j = 0; j < height1; j++)
+        for (int i = 0; i < width1; i++)
+        {
+            if (i == 0)
+                p = 128; // Prediction with a predfined value for the first pixel of each row
+
+            // Inverse Binarization
+            char binStr[7];
+            fscanf(bitstream, "%s", binStr);
+            for (int b = 0; b < 6; b++)
+                if (binStr[b] == '1')
+                    qtz2[j * width1 + i] |= (1 << (5 - b));
+
+            iqtz2[j * width1 + i] = qtz2[j * width1 + i] * q; // Inverse Quantization
+            r2[j * width1 + i] = iqtz2[j * width1 + i] + p;   // Reconstruction
+            p = r2[j * width1 + i];                          // Update prediction
+
+            // outputImg2: r(dec)
+            outputImg2[j * stride1 + 3 * i + 0] = r2[j * width1 + i];
+            outputImg2[j * stride1 + 3 * i + 1] = r2[j * width1 + i];
+            outputImg2[j * stride1 + 3 * i + 2] = r2[j * width1 + i];
+        }
+
+    // outputFile2: reconDecY.bmp
+    FILE *outputFile2 = fopen("reconDecY.bmp", "wb");
+    fwrite(&bmpFile1, sizeof(BITMAPFILEHEADER), 1, outputFile2);
+    fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile2);
+    fwrite(outputImg2, sizeof(unsigned char), size1, outputFile2);
+
+    // free memory
+    fclose(bitstream);
+
+    // PSNR Code //
+    // 원본 - 노이즈 PSNR (y1 - y2)
+    double mse = 0, psnr;
+    for (int j = 0; j < height1; j++)
+        for (int i = 0; i < width1; i++)
+            mse += (double)((r[j * width1 + i] - r2[j * width1 + i]) * (r[j * width1 + i] - r2[j * width1 + i]));
+    mse /= (width1 * height1);
+    psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
+    printf("%.2lfdB(%.2lf)\n", psnr, mse);
 
     // free memory
     free(inputImg1);
@@ -109,8 +145,12 @@ int main(int argc, char *argv[])
     free(qtz);
     free(iqtz);
     free(r);
+    free(qtz2);
+    free(iqtz2);
+    free(r2);
 
     free(outputImg1);
     fclose(outputFile1);
-    fclose(bitstream);
+    free(outputImg2);
+    fclose(outputFile2);
 }
