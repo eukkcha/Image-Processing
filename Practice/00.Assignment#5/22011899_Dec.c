@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
             char bin[5];
             fscanf(bitstream, "%4s", bin);
             if (strcmp(bin, "0000") == 0)
-                qtz[j * width1 + i] = -7;
+                qtz[j * width1 + i] = -8; // 왜 -8이지? -7이 아닌가?
             else if (strcmp(bin, "0001") == 0)
                 qtz[j * width1 + i] = -6;
             else if (strcmp(bin, "0010") == 0)
@@ -106,6 +106,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < width1; i++)
             o[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
+    printf("%d %d\n\n", o[320 * width1 + 90 + 1], r[320 * width1 + 90 + 1]);
+
     double mse = 0, psnr;
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
@@ -129,3 +131,5 @@ int main(int argc, char *argv[])
     free(outputImg1);
     fclose(outputFile1);
 }
+
+// j:320, i:90부터 오류 발생... 320 * 90 -> -7
