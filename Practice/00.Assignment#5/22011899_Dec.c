@@ -106,8 +106,6 @@ int main(int argc, char *argv[])
         for (int i = 0; i < width1; i++)
             o[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
 
-    printf("%d %d\n\n", o[320 * width1 + 90 + 1], r[320 * width1 + 90 + 1]);
-
     double mse = 0, psnr;
     for (int j = 0; j < height1; j++)
         for (int i = 0; i < width1; i++)
