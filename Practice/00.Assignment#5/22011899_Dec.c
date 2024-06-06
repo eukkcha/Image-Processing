@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
             char bin[5];
             fscanf(bitstream, "%4s", bin);
             if (strcmp(bin, "0000") == 0)
-                qtz[j * width1 + i] = -8; // 왜 -8이지? -7이 아닌가?
+                qtz[j * width1 + i] = -7; // 왜 -8이지? -7이 아닌가?
             else if (strcmp(bin, "0001") == 0)
                 qtz[j * width1 + i] = -6;
             else if (strcmp(bin, "0010") == 0)
