@@ -90,6 +90,12 @@ int main(int argc, char *argv[])
             else if (qtz[j * width1 + i] > 7)
                 fprintf(bitstream, "1111");
 
+            // -7~8 range limitation
+            if (qtz[j * width1 + i] < -6)
+                qtz[j * width1 + i] = -7;
+            else if (qtz[j * width1 + i] > 7)
+                qtz[j * width1 + i] = 8;
+
             iqtz[j * width1 + i] = qtz[j * width1 + i] * q; // Inverse Quantization
             r[j * width1 + i] = iqtz[j * width1 + i] + p;   // Reconstruction
             p = r[j * width1 + i];                          // Update prediction
