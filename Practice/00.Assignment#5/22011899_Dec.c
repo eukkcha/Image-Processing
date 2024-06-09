@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
     fread(inputImg1, sizeof(unsigned char), size1, inputFile1);
 
     // DPCM Based Decoder code //
-    int *e = (int *)calloc(size1, sizeof(int));    // Function e: Prediction Error
     int *qtz = (int *)calloc(size1, sizeof(int));  // Function qtz: Quantization
     int *iqtz = (int *)calloc(size1, sizeof(int)); // Function iqtz: Inverse Quantization
     int *r = (int *)calloc(size1, sizeof(int));    // Function r: Reconstruction
@@ -51,7 +50,7 @@ int main(int argc, char *argv[])
             char bin[5];
             fscanf(bitstream, "%4s", bin);
             if (strcmp(bin, "0000") == 0)
-                qtz[j * width1 + i] = -7; // 왜 -8이지? -7이 아닌가?
+                qtz[j * width1 + i] = -7;
             else if (strcmp(bin, "0001") == 0)
                 qtz[j * width1 + i] = -6;
             else if (strcmp(bin, "0010") == 0)
@@ -99,21 +98,6 @@ int main(int argc, char *argv[])
     fwrite(&bmpInfo1, sizeof(BITMAPINFOHEADER), 1, outputFile1);
     fwrite(outputImg1, sizeof(unsigned char), size1, outputFile1);
 
-    // PSNR Code //
-    // Function o: original
-    int *o = (int *)calloc(size1, sizeof(int));
-    for (int j = 0; j < height1; j++)
-        for (int i = 0; i < width1; i++)
-            o[j * width1 + i] = inputImg1[j * stride1 + 3 * i + 0];
-
-    double mse = 0, psnr;
-    for (int j = 0; j < height1; j++)
-        for (int i = 0; i < width1; i++)
-            mse += (double)((o[j * width1 + i] - r[j * width1 + i]) * (o[j * width1 + i] - r[j * width1 + i]));
-    mse /= (width1 * height1);
-    psnr = mse != 0.0 ? 10.0 * log10(255 * 255 / mse) : 99.99;
-    printf("%.2lfdB(%.2lf)\n", psnr, mse);
-
     // close bitstream.txt
     fclose(bitstream);
 
@@ -121,7 +105,6 @@ int main(int argc, char *argv[])
     free(inputImg1);
     fclose(inputFile1);
 
-    free(e);
     free(qtz);
     free(iqtz);
     free(r);
@@ -129,5 +112,3 @@ int main(int argc, char *argv[])
     free(outputImg1);
     fclose(outputFile1);
 }
-
-// j:320, i:90부터 오류 발생... 320 * 90 -> -7
